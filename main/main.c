@@ -21,7 +21,10 @@ void app_main(void)
 
     configure_fft();
 
-    wifi_main();
+    wifi_init();
+
+    while (!wifi_is_connected());
+    wifi_open_socket();
 
     while (1) {
         vTaskDelay(100);

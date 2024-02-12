@@ -14,6 +14,7 @@
 #include "guitar_cfg.h"
 #include "adc_handler.h"
 #include "fft_handler.h"
+#include "wifi_handler.h"
 
 static const char *TAG = "GuitarOS(ADC)";
 
@@ -69,6 +70,7 @@ uint8_t result[SAMPLE_SIZE*SOC_ADC_DIGI_RESULT_BYTES] = {0};
 
 __attribute__((aligned(16)))
 float sampleBuf[SAMPLE_SIZE];
+int32_t rawBuf[SAMPLE_SIZE];
 
 void adc_task( void * pvParameters )
 {
@@ -143,6 +145,7 @@ void adc_task( void * pvParameters )
                             //ESP_LOGI(TAG, "%d - %d", i, (int)(p->type2.data));
                             
                             int32_t iVal = (p->type2.data) - baseValue;
+                            rawBuf[i] = iVal;
                             
                             if (iVal > maxVal)
                             {
@@ -165,7 +168,7 @@ void adc_task( void * pvParameters )
                     }
     
                     //vTaskDelay(1000000);
-
+                    wifi_send_data((uint8_t*)rawBuf, sizeof(rawBuf));
                     run_fft(sampleBuf);
                 }                
             }

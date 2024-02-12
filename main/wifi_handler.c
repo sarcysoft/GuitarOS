@@ -68,7 +68,7 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
-static const char *TAG = "wifi station";
+static const char *TAG = "GuitarOS(WIFI)";
 
 static int s_retry_num = 0;
 
@@ -151,17 +151,66 @@ void wifi_init_sta(void)
     /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
      * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+        ESP_LOGI(TAG, "connected to ap SSID:%s", EXAMPLE_ESP_WIFI_SSID);
     } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+        ESP_LOGI(TAG, "Failed to connect to SSID:%s", EXAMPLE_ESP_WIFI_SSID);
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
 }
 
-void wifi_main(void)
+bool wifi_is_connected(void)
+{
+    return ((xEventGroupGetBits(s_wifi_event_group) & WIFI_CONNECTED_BIT) != 0);
+}
+
+int client_fd;
+
+void wifi_open_socket(void)
+{
+    ESP_LOGI(TAG, "Opening socket.\n");
+
+    int status, valread;
+    struct sockaddr_in serv_addr;
+
+    char buffer[1024] = { 0 };
+    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        ESP_LOGI(TAG, "Socket creation error \n");
+        return;
+    }
+ 
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(9876);
+ 
+    // Convert IPv4 and IPv6 addresses from text to binary
+    // form
+    if (inet_pton(AF_INET, "172.16.1.177", &serv_addr.sin_addr) <= 0)
+    {
+        ESP_LOGI(TAG, "Invalid address/ Address not supported \n");
+        return;
+    }
+ 
+    if ((status = connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) 
+    {
+        ESP_LOGI(TAG, "Connection Failed \n");
+        return;
+    }
+
+}
+
+void wifi_close_socket(void)
+{
+    // closing the connected socket
+    close(client_fd);
+}
+
+void wifi_send_data(uint8_t* pBuffer, uint32_t len)
+{
+    send(client_fd, pBuffer, len, 0);
+}
+
+void wifi_init(void)
 {
     //Initialize NVS
     esp_err_t ret = nvs_flash_init();
@@ -173,45 +222,4 @@ void wifi_main(void)
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     wifi_init_sta();
-
-    while ((xEventGroupGetBits(s_wifi_event_group) & WIFI_CONNECTED_BIT) == 0);
-
-    ESP_LOGI(TAG, "Opening socket.\n");
-
-    int status, valread, client_fd;
-    struct sockaddr_in serv_addr;
-    char* hello = "Hello from client";
-    char buffer[1024] = { 0 };
-    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        ESP_LOGI(TAG, "Socket creation error \n");
-        return;
-    }
- 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(9876);
- 
-    // Convert IPv4 and IPv6 addresses from text to binary
-    // form
-    if (inet_pton(AF_INET, "172.16.1.177", &serv_addr.sin_addr)
-        <= 0) {
-        ESP_LOGI(TAG, "Invalid address/ Address not supported \n");
-        return;
-    }
- 
-    if ((status
-         = connect(client_fd, (struct sockaddr*)&serv_addr,
-                   sizeof(serv_addr)))
-        < 0) {
-        ESP_LOGI(TAG, "Connection Failed \n");
-        return;
-    }
-    send(client_fd, hello, strlen(hello), 0);
-    ESP_LOGI(TAG, "Hello message sent\n");
-    valread = read(client_fd, buffer,
-                   1024 - 1); // subtract 1 for the null
-                              // terminator at the end
-    ESP_LOGI(TAG, "%s\n", buffer);
- 
-    // closing the connected socket
-    close(client_fd);
 }

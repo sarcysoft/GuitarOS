@@ -62,4 +62,6 @@ C:/Projects/GuitarOS/build/esp-idf/touch_element/libtouch_element.a
 C:/Projects/GuitarOS/build/esp-idf/ulp/libulp.a
 C:/Projects/GuitarOS/build/esp-idf/usb/libusb.a
 C:/Projects/GuitarOS/build/esp-idf/wifi_provisioning/libwifi_provisioning.a
+C:/Projects/GuitarOS/build/esp-idf/espressif__esp-dsp/libespressif__esp-dsp.a
+C:/Projects/GuitarOS/build/esp-idf/espressif__led_strip/libespressif__led_strip.a
 C:/Projects/GuitarOS/build/esp-idf/main/libmain.a

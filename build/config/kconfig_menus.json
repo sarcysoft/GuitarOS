@@ -5562,6 +5562,280 @@
     {
         "children": [
             {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "ENV_GPIO_RANGE_MIN",
+                "name": "ENV_GPIO_RANGE_MIN",
+                "range": null,
+                "title": null,
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "ENV_GPIO_RANGE_MAX",
+                "name": "ENV_GPIO_RANGE_MAX",
+                "range": null,
+                "title": null,
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "ENV_GPIO_IN_RANGE_MAX",
+                "name": "ENV_GPIO_IN_RANGE_MAX",
+                "range": null,
+                "title": null,
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "ENV_GPIO_OUT_RANGE_MAX",
+                "name": "ENV_GPIO_OUT_RANGE_MAX",
+                "range": null,
+                "title": null,
+                "type": "int"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice BLINK_LED>",
+                        "help": null,
+                        "id": "BLINK_LED_GPIO",
+                        "name": "BLINK_LED_GPIO",
+                        "range": null,
+                        "title": "GPIO",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice BLINK_LED>",
+                        "help": null,
+                        "id": "BLINK_LED_RMT",
+                        "name": "BLINK_LED_RMT",
+                        "range": null,
+                        "title": "RMT - Addressable LED",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": "Defines the default peripheral for blink example",
+                "id": "example-configuration-blink-led-type",
+                "name": "BLINK_LED",
+                "title": "Blink LED type",
+                "type": "choice"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO number (IOxx) to blink on and off or the RMT signal for the addressable LED.\nSome GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.",
+                "id": "BLINK_GPIO",
+                "name": "BLINK_GPIO",
+                "range": [
+                    0,
+                    48
+                ],
+                "title": "Blink GPIO number",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Define the blinking period in milliseconds.",
+                "id": "BLINK_PERIOD",
+                "name": "BLINK_PERIOD",
+                "range": [
+                    10,
+                    3600000
+                ],
+                "title": "Blink period in ms",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "SSID (network name) for the example to connect to.",
+                "id": "ESP_WIFI_SSID",
+                "name": "ESP_WIFI_SSID",
+                "range": null,
+                "title": "WiFi SSID",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "WiFi password (WPA or WPA2) for the example to use.",
+                "id": "ESP_WIFI_PASSWORD",
+                "name": "ESP_WIFI_PASSWORD",
+                "range": null,
+                "title": "WiFi Password",
+                "type": "string"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SAE_MODE>",
+                        "help": null,
+                        "id": "ESP_WPA3_SAE_PWE_HUNT_AND_PECK",
+                        "name": "ESP_WPA3_SAE_PWE_HUNT_AND_PECK",
+                        "range": null,
+                        "title": "HUNT AND PECK",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SAE_MODE>",
+                        "help": null,
+                        "id": "ESP_WPA3_SAE_PWE_HASH_TO_ELEMENT",
+                        "name": "ESP_WPA3_SAE_PWE_HASH_TO_ELEMENT",
+                        "range": null,
+                        "title": "H2E",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SAE_MODE>",
+                        "help": null,
+                        "id": "ESP_WPA3_SAE_PWE_BOTH",
+                        "name": "ESP_WPA3_SAE_PWE_BOTH",
+                        "range": null,
+                        "title": "BOTH",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": "Select mode for SAE as Hunt and Peck, H2E or both.",
+                "id": "example-configuration-wpa3-sae-mode-selection",
+                "name": "ESP_WIFI_SAE_MODE",
+                "title": "WPA3 SAE mode selection",
+                "type": "choice"
+            },
+            {
+                "children": [],
+                "depends_on": "ESP_WPA3_SAE_PWE_HASH_TO_ELEMENT || ESP_WPA3_SAE_PWE_BOTH",
+                "help": "password identifier for SAE H2E",
+                "id": "ESP_WIFI_PW_ID",
+                "name": "ESP_WIFI_PW_ID",
+                "range": null,
+                "title": "PASSWORD IDENTIFIER",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.",
+                "id": "ESP_MAXIMUM_RETRY",
+                "name": "ESP_MAXIMUM_RETRY",
+                "range": null,
+                "title": "Maximum retry",
+                "type": "int"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_OPEN",
+                        "name": "ESP_WIFI_AUTH_OPEN",
+                        "range": null,
+                        "title": "OPEN",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WEP",
+                        "name": "ESP_WIFI_AUTH_WEP",
+                        "range": null,
+                        "title": "WEP",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WPA_PSK",
+                        "name": "ESP_WIFI_AUTH_WPA_PSK",
+                        "range": null,
+                        "title": "WPA PSK",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WPA2_PSK",
+                        "name": "ESP_WIFI_AUTH_WPA2_PSK",
+                        "range": null,
+                        "title": "WPA2 PSK",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WPA_WPA2_PSK",
+                        "name": "ESP_WIFI_AUTH_WPA_WPA2_PSK",
+                        "range": null,
+                        "title": "WPA/WPA2 PSK",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WPA3_PSK",
+                        "name": "ESP_WIFI_AUTH_WPA3_PSK",
+                        "range": null,
+                        "title": "WPA3 PSK",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WPA2_WPA3_PSK",
+                        "name": "ESP_WIFI_AUTH_WPA2_WPA3_PSK",
+                        "range": null,
+                        "title": "WPA2/WPA3 PSK",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD>",
+                        "help": null,
+                        "id": "ESP_WIFI_AUTH_WAPI_PSK",
+                        "name": "ESP_WIFI_AUTH_WAPI_PSK",
+                        "range": null,
+                        "title": "WAPI PSK",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": "The weakest authmode to accept in the scan mode.\nThis value defaults to ESP_WIFI_AUTH_WPA2_PSK incase password is present and ESP_WIFI_AUTH_OPEN is used.\nPlease select ESP_WIFI_AUTH_WEP/ESP_WIFI_AUTH_WPA_PSK incase AP is operating in WEP/WPA mode.",
+                "id": "example-configuration-wifi-scan-auth-mode-threshold",
+                "name": "ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD",
+                "title": "WiFi Scan auth mode threshold",
+                "type": "choice"
+            }
+        ],
+        "depends_on": null,
+        "id": "example-configuration",
+        "title": "Example Configuration",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
                 "children": [
                     {
                         "children": [],
@@ -25612,6 +25886,154 @@
                 "depends_on": null,
                 "id": "component-config-wi-fi-provisioning-manager",
                 "title": "Wi-Fi Provisioning Manager",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3",
+                        "help": null,
+                        "id": "DSP_OPTIMIZATIONS_SUPPORTED",
+                        "name": "DSP_OPTIMIZATIONS_SUPPORTED",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_OPTIMIZATION>",
+                                "help": null,
+                                "id": "DSP_ANSI",
+                                "name": "DSP_ANSI",
+                                "range": null,
+                                "title": "ANSI C",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "DSP_OPTIMIZATIONS_SUPPORTED && <choice DSP_OPTIMIZATION>",
+                                "help": null,
+                                "id": "DSP_OPTIMIZED",
+                                "name": "DSP_OPTIMIZED",
+                                "range": null,
+                                "title": "Optimized",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "An ANSI C version could be used for verification and debug purpose,\nor for chips where an optimized version is not available.",
+                        "id": "component-config-dsp-library-dsp-optimization",
+                        "name": "DSP_OPTIMIZATION",
+                        "title": "DSP Optimization",
+                        "type": "choice"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "DSP_OPTIMIZATION",
+                        "name": "DSP_OPTIMIZATION",
+                        "range": null,
+                        "title": null,
+                        "type": "int"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_512",
+                                "name": "DSP_MAX_FFT_SIZE_512",
+                                "range": null,
+                                "title": "512",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_1024",
+                                "name": "DSP_MAX_FFT_SIZE_1024",
+                                "range": null,
+                                "title": "1024",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_2048",
+                                "name": "DSP_MAX_FFT_SIZE_2048",
+                                "range": null,
+                                "title": "2048",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_4096",
+                                "name": "DSP_MAX_FFT_SIZE_4096",
+                                "range": null,
+                                "title": "4096",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_8192",
+                                "name": "DSP_MAX_FFT_SIZE_8192",
+                                "range": null,
+                                "title": "8192",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_16384",
+                                "name": "DSP_MAX_FFT_SIZE_16384",
+                                "range": null,
+                                "title": "16384",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice DSP_MAX_FFT_SIZE>",
+                                "help": null,
+                                "id": "DSP_MAX_FFT_SIZE_32768",
+                                "name": "DSP_MAX_FFT_SIZE_32768",
+                                "range": null,
+                                "title": "32768",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "This is default FFT size for internal usage.",
+                        "id": "component-config-dsp-library-maximum-fft-length",
+                        "name": "DSP_MAX_FFT_SIZE",
+                        "title": "Maximum FFT length",
+                        "type": "choice"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "DSP_MAX_FFT_SIZE",
+                        "name": "DSP_MAX_FFT_SIZE",
+                        "range": null,
+                        "title": null,
+                        "type": "int"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-dsp-library",
+                "title": "DSP Library",
                 "type": "menu"
             }
         ],
