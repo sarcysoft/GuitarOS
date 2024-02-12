@@ -72,7 +72,6 @@ static const char *TAG = "GuitarOS(WIFI)";
 
 static int s_retry_num = 0;
 
-
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
@@ -196,7 +195,6 @@ void wifi_open_socket(void)
         ESP_LOGI(TAG, "Connection Failed \n");
         return;
     }
-
 }
 
 void wifi_close_socket(void)
