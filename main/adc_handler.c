@@ -70,7 +70,7 @@ uint8_t result[SAMPLE_SIZE*SOC_ADC_DIGI_RESULT_BYTES] = {0};
 
 __attribute__((aligned(16)))
 float sampleBuf[SAMPLE_SIZE];
-int32_t rawBuf[SAMPLE_SIZE];
+int16_t rawBuf[SAMPLE_SIZE];
 
 void adc_task( void * pvParameters )
 {
@@ -145,7 +145,7 @@ void adc_task( void * pvParameters )
                             //ESP_LOGI(TAG, "%d - %d", i, (int)(p->type2.data));
                             
                             int32_t iVal = (p->type2.data) - baseValue;
-                            rawBuf[i] = iVal;
+                            rawBuf[i] = (int16_t)(iVal >> (SOC_ADC_DIGI_DATA_BYTES_PER_CONV - 16));
                             
                             if (iVal > maxVal)
                             {
