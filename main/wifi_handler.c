@@ -164,16 +164,18 @@ bool wifi_is_connected(void)
 }
 
 int client_fd;
+struct sockaddr_in serv_addr;
+int server_struct_length;
 
 void wifi_open_socket(void)
 {
     ESP_LOGI(TAG, "Opening socket.\n");
 
     int status, valread;
-    struct sockaddr_in serv_addr;
+    
 
     char buffer[1024] = { 0 };
-    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if ((client_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
         ESP_LOGI(TAG, "Socket creation error \n");
         return;
@@ -181,18 +183,13 @@ void wifi_open_socket(void)
  
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(9876);
- 
+    server_struct_length = sizeof(serv_addr);
+
     // Convert IPv4 and IPv6 addresses from text to binary
     // form
     if (inet_pton(AF_INET, "172.16.1.177", &serv_addr.sin_addr) <= 0)
     {
         ESP_LOGI(TAG, "Invalid address/ Address not supported \n");
-        return;
-    }
- 
-    if ((status = connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) 
-    {
-        ESP_LOGI(TAG, "Connection Failed \n");
         return;
     }
 }
@@ -205,7 +202,10 @@ void wifi_close_socket(void)
 
 void wifi_send_data(uint8_t* pBuffer, uint32_t len)
 {
-    send(client_fd, pBuffer, len, 0);
+    if (sendto(client_fd, pBuffer, len, 0, (struct sockaddr*)&serv_addr, server_struct_length) < 0)
+    {
+        ESP_LOGI(TAG,"Unable to send message\n");
+    }
 }
 
 void wifi_init(void)
