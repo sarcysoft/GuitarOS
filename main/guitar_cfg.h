@@ -6,7 +6,7 @@
 #define VISIBLE_WL_MAX     780
 #define VISIBLE_WL_RANGE   (VISIBLE_WL_MAX - VISIBLE_WL_MIN)
 
-#define LEDS_PIN     8
+#define LEDS_PIN     21
 #define LEDS_COUNT   50
 #define LEDS_ALIAS   5
 #define LEDS_MAX     (LEDS_COUNT * LEDS_ALIAS)

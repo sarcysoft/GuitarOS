@@ -8,6 +8,7 @@
 #include "adc_handler.h"
 #include "fft_handler.h"
 #include "wifi_handler.h"
+#include "lcd_handler.h"
 
 static const char *TAG = "GuitarOS";
 
@@ -15,16 +16,18 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "Start Up!");
 
+    configure_lcd();   
+    
     configure_led();   
 
-    adc_init();
+    //adc_init();
 
-    configure_fft();
+    //configure_fft();
 
-    wifi_init();
+    //wifi_init();
 
-    while (!wifi_is_connected());
-    wifi_open_socket();
+    //while (!wifi_is_connected());
+    //wifi_open_socket();
 
     while (1) {
         vTaskDelay(100);

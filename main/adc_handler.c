@@ -20,7 +20,7 @@ static const char *TAG = "GuitarOS(ADC)";
 
 
 static TaskHandle_t s_task_handle;
-static adc_channel_t channel[1] = {ADC_CHANNEL_0};
+static adc_channel_t channel[1] = {ADC_CHANNEL_4};
 
 
 static void continuous_adc_init(adc_channel_t *channel, uint8_t channel_num, adc_continuous_handle_t *out_handle)
@@ -35,7 +35,7 @@ static void continuous_adc_init(adc_channel_t *channel, uint8_t channel_num, adc
 
     adc_continuous_config_t dig_cfg = {
         .sample_freq_hz = SAMPLE_RATE,
-        .conv_mode = ADC_CONV_SINGLE_UNIT_1,
+        .conv_mode = ADC_CONV_SINGLE_UNIT_2,
         .format = ADC_DIGI_OUTPUT_FORMAT_TYPE2,
     };
 
@@ -44,7 +44,7 @@ static void continuous_adc_init(adc_channel_t *channel, uint8_t channel_num, adc
     for (int i = 0; i < channel_num; i++) {
         adc_pattern[i].atten = ADC_ATTEN_DB_11;
         adc_pattern[i].channel = channel[i] & 0x7;
-        adc_pattern[i].unit = ADC_UNIT_1;
+        adc_pattern[i].unit = ADC_UNIT_2;
         adc_pattern[i].bit_width = SOC_ADC_DIGI_MAX_BITWIDTH;
 
         ESP_LOGI(TAG, "adc_pattern[%d].atten is :%"PRIx8, i, adc_pattern[i].atten);

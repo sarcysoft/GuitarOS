@@ -161,20 +161,20 @@ rgb_t col_to_rgb(uint32_t col, uint32_t stren)
     
     stren = stren < 256 ? stren : 256;
 
-    rgb.r = ((stren  * (col >> 0)) / 256) & 0xff;
-    rgb.g = ((stren  * (col >> 8)) / 256) & 0xff;
-    rgb.b = ((stren  * (col >> 16)) / 256) & 0xff;
+    rgb.r = ((stren  * ((col >> 16) & 0xff)) / 256);
+    rgb.g = ((stren  * ((col >> 8) & 0xff)) / 256);
+    rgb.b = ((stren  * ((col >> 0) & 0xff)) / 256);
 
     return rgb;
 }
 
 int32_t map_freq_to_wl(int32_t freq)
 {
-  int32_t wl = VISIBLE_WL_MIN;
+    int32_t wl = VISIBLE_WL_MIN;
 
-  if (freq <= GUITAR_FREQ_MIN)
-  {
-    wl = VISIBLE_WL_MAX;
+    if (freq <= GUITAR_FREQ_MIN)
+    {
+      wl = VISIBLE_WL_MAX;
   }
   else if (freq >= GUITAR_FREQ_MAX)
   {
@@ -265,4 +265,6 @@ void configure_led(void)
 
     ESP_LOGI(TAG, "Starting LED update timer");
     xTimerStart(hUpdate, 0);
+    
+    add_point(0,1,5,0x00ffffff,255);
 }

@@ -1,3 +1,7 @@
 dependencies:
+  idf: ">=4.4"
+  lvgl/lvgl: "~8.3.0"
+  esp_lcd_gc9a01: "^1.0"
+  esp_lcd_touch_cst816s: "^1.0.0"
   espressif/esp-dsp: "^1.4.10"
   espressif/led_strip: "^2.0.0"
