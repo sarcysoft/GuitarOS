@@ -9,6 +9,7 @@
 #include "fft_handler.h"
 #include "wifi_handler.h"
 #include "lcd_handler.h"
+#include "touch_handler.h"
 
 static const char *TAG = "GuitarOS";
 
@@ -17,6 +18,8 @@ void app_main(void)
     ESP_LOGI(TAG, "Start Up!");
 
     configure_lcd();   
+
+    configure_touch();
     
     configure_led();   
 

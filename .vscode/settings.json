@@ -17,6 +17,7 @@
     "idf.toolsPathWin": "C:\\Users\\bryce\\.espressif",
     "idf.flashType": "UART",
     "files.associations": {
-        "guitar_cfg.h": "c"
+        "guitar_cfg.h": "c",
+        "gpio.h": "c"
     }
 }

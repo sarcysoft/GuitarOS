@@ -5,5 +5,6 @@ idf_component_register(SRCS
 "fft_handler.c"
 "wifi_handler.c"
 "lcd_handler.c"
+"touch_handler.c"
 "lvgl_demo_ui.c"
 INCLUDE_DIRS ".")
