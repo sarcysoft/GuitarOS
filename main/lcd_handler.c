@@ -55,6 +55,14 @@ static SemaphoreHandle_t lvgl_mux = NULL;
 extern void example_lvgl_demo_ui(lv_disp_t *disp);
 
 static const char *TAG = "GuitarOS(LCD)";
+
+unsigned char reverse(unsigned char b) {
+   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+   return b;
+}
+
 static bool example_notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
     lv_disp_drv_t *disp_driver = (lv_disp_drv_t *)user_ctx;
@@ -195,10 +203,20 @@ void configure_lcd(void)
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    //ESP_ERROR_CHECK(esp_lcd_panel_disp_off(panel_handle, false));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
 
+    uint8_t status[5];
+
+    ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x38, NULL, 0));
+
+    ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x04, &status, 5));
+    ESP_LOGI(TAG, "Display ID : %02x %02x %02x %02x %02x", (int)(status[0]), (int)(status[1]), (int)(status[2]), (int)(status[3]), (int)(status[4]));
+    
+    ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x09, &status, 5));
+    ESP_LOGI(TAG, "Display Status : %02x %02x %02x %02x %02x", (int)(status[0]), (int)(status[1]), (int)(status[2]), (int)(status[3]), (int)(status[4]));
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
-    //ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     ESP_LOGI(TAG, "Turn on LCD backlight");
     gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);

@@ -10,8 +10,8 @@
                 "${config:idf.espAdfPathWin}/components/**",
                 "${workspaceFolder}/build/config",
                 "${workspaceFolder}/**",
-                "C:/Users/bryce/esp/v5.1.2/esp-idf/components/esp_lcd/include",
-                "C:/Users/bryce/esp/v5.1.2/esp-idf/components/driver/spi/include",
+                "C:/Users/bryce/esp/v5.2.1/esp-idf/components/esp_lcd/include",
+                "C:/Users/bryce/esp/v5.2.1/esp-idf/components/driver/spi/include",
                 "${workspaceFolder}/managed_components/espressif__esp_lcd_gc9a01/include",
                 "${workspaceFolder}/managed_components/lvgl__lvgl",
                 "${workspaceFolder}/managed_components/espressif__esp_lcd_touch/include"
