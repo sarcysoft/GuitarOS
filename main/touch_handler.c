@@ -14,9 +14,14 @@
 #include "esp_lcd_touch_cst816s.h"
 #include "driver/i2c.h"
 
+#include "lvgl.h"
+#include "lv_conf.h"
+
 static const char *TAG = "GuitarOS(Touch)";
 static SemaphoreHandle_t touch_mux;
 static esp_lcd_touch_handle_t tp;
+static lv_indev_t * indev_touchpad;
+static lv_indev_data_t data;
 
 #define CONFIG_LCD_HRES 240
 #define CONFIG_LCD_VRES 240
@@ -31,6 +36,31 @@ static void touch_callback(esp_lcd_touch_handle_t tp)
     if (xHigherPriorityTaskWoken) {
         portYIELD_FROM_ISR();
     }
+}
+
+static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+{
+    esp_lcd_touch_read_data(tp); // read only when ISR was triggled
+    uint16_t touch_x[1];
+    uint16_t touch_y[1];
+    uint16_t touch_strength[1];
+    uint8_t touch_cnt = 0;
+
+    bool touchpad_pressed = esp_lcd_touch_get_coordinates(tp, touch_x, touch_y, touch_strength, &touch_cnt, 1);
+
+    if ((touch_x[0] < 240) && (touch_y[0] < 240))
+    {
+        data->point.x = 240-touch_x[0];
+        data->point.y = touch_y[0];
+        if (touchpad_pressed)
+        {
+            data->state = LV_INDEV_STATE_PR;
+        }
+        else
+        {
+            data->state = LV_INDEV_STATE_REL;
+        }
+    }    
 }
 
 void touch_task( void * pvParameters )
@@ -59,6 +89,18 @@ void touch_task( void * pvParameters )
                 last_y = touch_y[0];
                 last_pressed = touchpad_pressed;
                 ESP_LOGI(TAG, "touch pressed = %d , x = %u , y=%u", touchpad_pressed, touch_x[0], touch_y[0]);
+
+                lv_indev_data_t data;
+                data.point.x = last_x;
+                data.point.y = last_y;
+                if (last_pressed)
+                {
+                    data.state = LV_INDEV_STATE_PR;
+                }
+                else
+                {
+                    data.state = LV_INDEV_STATE_REL;
+                }
             }
         }
     }
@@ -110,8 +152,9 @@ void configure_touch(void)
     esp_lcd_touch_new_i2c_cst816s(io_handle, &tp_cfg, &tp);
 
     BaseType_t xReturned;
-TaskHandle_t xHandle = NULL;
+    TaskHandle_t xHandle = NULL;
 
+#if 0
     /* Create the task, storing the handle. */
     xReturned = xTaskCreate(
                     touch_task,       /* Function that implements the task. */
@@ -126,4 +169,13 @@ TaskHandle_t xHandle = NULL;
         /* The task was created.  Use the task's handle to delete the task. */
         //vTaskDelete( xHandle );
     }
+#else
+    static lv_indev_drv_t indev_drv;
+
+    /*Register a touchpad input device*/
+    lv_indev_drv_init(&indev_drv);
+    indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = touchpad_read;
+    indev_touchpad = lv_indev_drv_register(&indev_drv);
+#endif
 }
