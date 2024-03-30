@@ -39,12 +39,12 @@ void example_lvgl_demo_ui(lv_disp_t *disp)
     /*Create a white label, set its text and align it to the center*/
     lv_obj_t * label = lv_label_create(scr);
     lv_label_set_text(label, "A#");
-    lv_obj_set_style_text_color(label, lv_color_hex(0xFF0020), LV_PART_MAIN);
+    lv_obj_set_style_text_color(label, lv_palette_main(LV_PALETTE_PURPLE), LV_PART_MAIN);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_48, LV_PART_MAIN);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     lv_obj_t * wheel = lv_colorwheel_create(scr, true);
     lv_obj_set_size(wheel, 240, 240);
-    lv_colorwheel_set_mode_fixed(wheel, LV_COLORWHEEL_MODE_VALUE);
+    lv_colorwheel_set_mode_fixed(wheel, LV_COLORWHEEL_MODE_HUE);
     lv_obj_center(wheel);
 }

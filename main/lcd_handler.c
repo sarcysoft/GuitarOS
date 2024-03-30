@@ -200,21 +200,14 @@ void configure_lcd(void)
     ESP_LOGI(TAG, "Install GC9A01 panel driver");
     ESP_ERROR_CHECK(esp_lcd_new_panel_gc9a01(io_handle, &panel_config, &panel_handle));
 
-
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
-    //ESP_ERROR_CHECK(esp_lcd_panel_disp_off(panel_handle, false));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
 
     uint8_t status[5];
 
-    ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x38, NULL, 0));
+    //ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x38, NULL, 0));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x04, &status, 5));
-    ESP_LOGI(TAG, "Display ID : %02x %02x %02x %02x %02x", (int)(status[0]), (int)(status[1]), (int)(status[2]), (int)(status[3]), (int)(status[4]));
-    
-    ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x09, &status, 5));
-    ESP_LOGI(TAG, "Display Status : %02x %02x %02x %02x %02x", (int)(status[0]), (int)(status[1]), (int)(status[2]), (int)(status[3]), (int)(status[4]));
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
