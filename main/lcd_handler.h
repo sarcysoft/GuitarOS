@@ -3,5 +3,6 @@
 #include <stdio.h>
 
 void configure_lcd(void);
+void lcd_state(bool enabled);
 
  #endif

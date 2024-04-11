@@ -1,39 +1,26 @@
-#include "lvgl.h"
-#include "lv_conf.h"
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "freertos/semphr.h"
+#include "esp_log.h"
+#include "sdkconfig.h"
 
-static lv_obj_t *meter;
-static lv_obj_t * btn;
-static lv_disp_rot_t rotation = LV_DISP_ROT_NONE;
+#include "guitar_cfg.h"
+#include "ui_handler.h"
+#include "lcd_handler.h"
+
+static const char *TAG = "GuitarOS(UI)";
+
+static TickType_t last_input;
+
 static lv_disp_t *pDisp = NULL;
-
-static void set_value(void *indic, int32_t v)
-{
-    lv_meter_set_indicator_end_value(meter, indic, v);
-}
-
-static void btn_cb(lv_event_t * e)
-{
-    lv_disp_t *disp = lv_event_get_user_data(e);
-    rotation++;
-    if (rotation > LV_DISP_ROT_270) {
-        rotation = LV_DISP_ROT_NONE;
-    }
-    lv_disp_set_rotation(disp, rotation);
-}
-
 static lv_obj_t * label;
-static lv_obj_t * wheel;
 
-static void wheel_cb(lv_event_t * event)
-{
-    lv_color_t col = lv_colorwheel_get_rgb(wheel);
-    lv_obj_set_style_text_color(label, col, LV_PART_MAIN);
-}
+static bool active = true;
 
 void disp_task( void * pvParameters )
 {
@@ -50,26 +37,37 @@ void disp_task( void * pvParameters )
     lv_obj_set_style_text_font(label, &lv_font_montserrat_48, LV_PART_MAIN);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    wheel = lv_colorwheel_create(scr, true);
-    lv_obj_add_event_cb(wheel, wheel_cb, LV_EVENT_VALUE_CHANGED , NULL);
-    lv_obj_set_size(wheel, 220, 220);
-    lv_colorwheel_set_mode_fixed(wheel, LV_COLORWHEEL_MODE_HUE);
-    lv_obj_center(wheel);
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    last_input = xTaskGetTickCount();
 
-     // Initialise the xLastWakeTime variable with the current time.
-     xLastWakeTime = xTaskGetTickCount();
+    for( ;; )
+    {
+        // Wait for the next cycle.
+        vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
-     for( ;; )
-     {
-         // Wait for the next cycle.
-         vTaskDelayUntil( &xLastWakeTime, xFrequency );
+        if (pdTICKS_TO_MS(xLastWakeTime - last_input) > 20000)
+        {
+            lcd_state(false);
+            active = false;
+        }
+        else
+        {
+            if (!active)
+            {
+                lcd_state(true);
+                active = true;
+            }
+        }
 
-         // Perform action here.
-     }
+        // Perform action here.
+    }
 }
 
-void example_lvgl_demo_ui(lv_disp_t *disp)
+void configure_UI(lv_disp_t *disp)
 {
+    ESP_LOGI(TAG, "Configuring UI!"); 
+
     pDisp = disp;
     BaseType_t xReturned;
     TaskHandle_t xHandle = NULL;
@@ -88,4 +86,10 @@ void example_lvgl_demo_ui(lv_disp_t *disp)
         /* The task was created.  Use the task's handle to delete the task. */
         //vTaskDelete( xHandle );
     }
+}
+
+void send_input(uint16_t x, uint16_t y, bool state)
+{
+    last_input = xTaskGetTickCount();
+    ESP_LOGI(TAG, "touch pressed = %d , x = %u , y=%u", state, x, y);
 }

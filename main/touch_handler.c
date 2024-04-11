@@ -11,6 +11,7 @@
 
 #include "guitar_cfg.h"
 #include "touch_handler.h"
+#include "ui_handler.h"
 #include "esp_lcd_touch_cst816s.h"
 #include "driver/i2c.h"
 
@@ -27,6 +28,8 @@ static lv_indev_data_t data;
 #define CONFIG_LCD_VRES 240
 #define CONFIG_LCD_TOUCH_RST 13
 #define CONFIG_LCD_TOUCH_INT 5
+
+#define MEMS_ADDR 0x6B
 
 static void touch_callback(esp_lcd_touch_handle_t tp)
 {
@@ -88,7 +91,7 @@ void touch_task( void * pvParameters )
                 last_x = touch_x[0];
                 last_y = touch_y[0];
                 last_pressed = touchpad_pressed;
-                ESP_LOGI(TAG, "touch pressed = %d , x = %u , y=%u", touchpad_pressed, touch_x[0], touch_y[0]);
+                send_input(touch_x[0], touch_y[0], last_pressed);
 
                 lv_indev_data_t data;
                 data.point.x = last_x;
@@ -118,6 +121,7 @@ void i2c_init(void)
     };
     i2c_param_config(0, &i2c_conf);
     i2c_driver_install(0, i2c_conf.mode, 0, 0, 0);
+    
 }
 
 void configure_touch(void)
@@ -151,10 +155,10 @@ void configure_touch(void)
     esp_lcd_new_panel_io_i2c((esp_lcd_i2c_bus_handle_t)0 , &io_config, &io_handle);
     esp_lcd_touch_new_i2c_cst816s(io_handle, &tp_cfg, &tp);
 
+#if 1
     BaseType_t xReturned;
     TaskHandle_t xHandle = NULL;
 
-#if 0
     /* Create the task, storing the handle. */
     xReturned = xTaskCreate(
                     touch_task,       /* Function that implements the task. */

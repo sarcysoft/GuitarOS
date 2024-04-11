@@ -17,6 +17,7 @@
 
 #include "guitar_cfg.h"
 #include "lcd_handler.h"
+#include "ui_handler.h"
 
 #include "esp_lcd_gc9a01.h"
 
@@ -51,8 +52,9 @@
 #define EXAMPLE_LVGL_TASK_PRIORITY     2
 
 static SemaphoreHandle_t lvgl_mux = NULL;
+static esp_lcd_panel_handle_t panel_handle = NULL;
 
-extern void example_lvgl_demo_ui(lv_disp_t *disp);
+//extern void example_lvgl_demo_ui(lv_disp_t *disp);
 
 static const char *TAG = "GuitarOS(LCD)";
 
@@ -150,6 +152,16 @@ static void example_lvgl_port_task(void *arg)
     }
 }
 
+void lcd_state(bool enabled)
+{
+    if (panel_handle)
+    {
+        ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, enabled));
+
+        gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, enabled?EXAMPLE_LCD_BK_LIGHT_ON_LEVEL:EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL);
+    }
+}
+
 void configure_lcd(void)
 {
     ESP_LOGI(TAG, "Configuring LCD!");
@@ -190,7 +202,6 @@ void configure_lcd(void)
     // Attach the LCD to the SPI bus
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &io_config, &io_handle));
 
-    esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = EXAMPLE_PIN_NUM_LCD_RST,
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
@@ -253,7 +264,7 @@ void configure_lcd(void)
     ESP_LOGI(TAG, "Display LVGL Meter Widget");
     // Lock the mutex due to the LVGL APIs are not thread-safe
     if (example_lvgl_lock(-1)) {
-        example_lvgl_demo_ui(disp);
+        configure_UI(disp);
         // Release the mutex
         example_lvgl_unlock();
     }
