@@ -10,6 +10,7 @@
 #include "wifi_handler.h"
 #include "lcd_handler.h"
 #include "touch_handler.h"
+#include "mems_handler.h"
 
 static const char *TAG = "GuitarOS";
 
@@ -22,6 +23,8 @@ void app_main(void)
     configure_touch();
     
     configure_led();   
+
+    configure_mems();   
 
     //adc_init();
 

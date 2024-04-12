@@ -24,10 +24,10 @@ typedef struct rgb_type {
 } rgb_t;
 
 typedef struct light_point_type {
-  int32_t loc;
-  int32_t vel;
-  rgb_t rgb;
-  int32_t size;
+    int32_t loc;
+    int32_t vel;
+    rgb_t rgb;
+    int32_t size;
 } light_point_t;
 
 rgb_t led_buf[LEDS_MAX];
@@ -37,60 +37,60 @@ static led_strip_handle_t led_strip;
 
 void clear_leds()
 {
-  for (int i = 0; i < LEDS_MAX; i++)
-  {
-    led_buf[i].r = 0;
-    led_buf[i].g = 0;
-    led_buf[i].b = 0;
-    led_buf[i].s = 0;
-  }
+    for (int i = 0; i < LEDS_MAX; i++)
+    {
+        led_buf[i].r = 0;
+        led_buf[i].g = 0;
+        led_buf[i].b = 0;
+        led_buf[i].s = 0;
+    }
 }
 
 void clear_points()
 {
 
-  for (int i = 0; i < MAX_POINTS; i++)
-  {
-    point_buf[i].loc = -1;
-  }
+    for (int i = 0; i < MAX_POINTS; i++)
+    {
+        point_buf[i].loc = -1;
+    }
 }
 
 void update_pts()
 {
-  clear_leds();
+    clear_leds();
 
-  for (int i = 0; i < MAX_POINTS; i++)
-  {
-    if (point_buf[i].loc >= 0)
+    for (int i = 0; i < MAX_POINTS; i++)
     {
-      int32_t loc = point_buf[i].loc + point_buf[i].vel;
-
-      if ((loc >= 0) && (loc < LEDS_MAX))
-      {
-        int32_t s = point_buf[i].size;
-        for (int l = loc - s; l <= loc + s; l++)
+        if (point_buf[i].loc >= 0)
         {
-          if ((l >= 0) && (l < LEDS_MAX))
-          {
-            rgb_t rgb = point_buf[i].rgb;
-            int32_t x = s - abs(l - loc);
+            int32_t loc = point_buf[i].loc + point_buf[i].vel;
 
-            led_buf[l].r = (x * rgb.r) / s;
-            led_buf[l].g = (x * rgb.g) / s;
-            led_buf[l].b = (x * rgb.b) / s;
+            if ((loc >= 0) && (loc < LEDS_MAX))
+            {
+                int32_t s = point_buf[i].size;
+                for (int l = loc - s; l <= loc + s; l++)
+                {
+                    if ((l >= 0) && (l < LEDS_MAX))
+                    {
+                        rgb_t rgb = point_buf[i].rgb;
+                        int32_t x = s - abs(l - loc);
 
-            led_buf[l].s++;
-          }
+                        led_buf[l].r = (x * rgb.r) / s;
+                        led_buf[l].g = (x * rgb.g) / s;
+                        led_buf[l].b = (x * rgb.b) / s;
+
+                        led_buf[l].s++;
+                    }
+                }
+
+                point_buf[i].loc = loc;
+            }
+            else
+            {
+                point_buf[i].loc = -1;
+            }
         }
-
-        point_buf[i].loc = loc;
-      }
-      else
-      {
-        point_buf[i].loc = -1;
-      }
     }
-  }
 }
 
 const double Gamma = 0.80;
@@ -102,31 +102,44 @@ rgb_t waveLengthToRGB(double Wavelength, int8_t stren)
     double factor;
     double Red, Green, Blue;
 
-    if((Wavelength >= 380) && (Wavelength < 440)) {
+    if((Wavelength >= 380) && (Wavelength < 440))
+    {
         Red = -(Wavelength - 440) / (440 - 380);
         Green = 0.0;
         Blue = 1.0;
-    } else if((Wavelength >= 440) && (Wavelength < 490)) {
+    }
+    else if((Wavelength >= 440) && (Wavelength < 490))
+    {
         Red = 0.0;
         Green = (Wavelength - 440) / (490 - 440);
         Blue = 1.0;
-    } else if((Wavelength >= 490) && (Wavelength < 510)) {
+    }
+    else if((Wavelength >= 490) && (Wavelength < 510))
+    {
         Red = 0.0;
         Green = 1.0;
         Blue = -(Wavelength - 510) / (510 - 490);
-    } else if((Wavelength >= 510) && (Wavelength < 580)) {
+    }
+    else if((Wavelength >= 510) && (Wavelength < 580))
+    {
         Red = (Wavelength - 510) / (580 - 510);
         Green = 1.0;
         Blue = 0.0;
-    } else if((Wavelength >= 580) && (Wavelength < 645)) {
+    }
+    else if((Wavelength >= 580) && (Wavelength < 645))
+    {
         Red = 1.0;
         Green = -(Wavelength - 645) / (645 - 580);
         Blue = 0.0;
-    } else if((Wavelength >= 645) && (Wavelength < 781)) {
+    }
+    else if((Wavelength >= 645) && (Wavelength < 781))
+    {
         Red = 1.0;
         Green = 0.0;
         Blue = 0.0;
-    } else {
+    }
+    else
+    {
         Red = 0.0;
         Green = 0.0;
         Blue = 0.0;
@@ -134,13 +147,20 @@ rgb_t waveLengthToRGB(double Wavelength, int8_t stren)
 
     // Let the intensity fall off near the vision limits
 
-    if((Wavelength >= 380) && (Wavelength < 420)) {
+    if((Wavelength >= 380) && (Wavelength < 420))
+    {
         factor = 0.3 + 0.7 * (Wavelength - 380) / (420 - 380);
-    } else if((Wavelength >= 420) && (Wavelength < 701)) {
+    }
+    else if((Wavelength >= 420) && (Wavelength < 701))
+    {
         factor = 1.0;
-    } else if((Wavelength >= 701) && (Wavelength < 781)) {
+    }
+    else if((Wavelength >= 701) && (Wavelength < 781))
+    {
         factor = 0.3 + 0.7 * (780 - Wavelength) / (780 - 700);
-    } else {
+    }
+    else
+    {
         factor = 0.0;
     }
 
@@ -153,6 +173,75 @@ rgb_t waveLengthToRGB(double Wavelength, int8_t stren)
     rgb.b = Blue == 0.0 ? 0 : (int)round(stren * pow(Blue * factor, Gamma));
 
     return rgb;
+}
+
+uint32_t hsv_to_col(double h, double s, double v)
+{
+    double      hh, p, q, t, ff;
+    long        i;
+    double      r,g,b;
+
+    if(s <= 0.0)
+    {       // < is bogus, just shuts up warnings
+        r = v;
+        g = v;
+        b = v;
+        return 0x00000000;
+    }
+
+    hh = h;
+    if(hh >= 360.0)
+    {
+        hh = 0.0;
+    }
+    hh /= 60.0;
+    i = (long)hh;
+    ff = hh - i;
+    p = v * (1.0 - s);
+    q = v * (1.0 - (s * ff));
+    t = v * (1.0 - (s * (1.0 - ff)));
+
+    switch(i)
+    {
+    case 0:
+        r = v;
+        g = t;
+        b = p;
+        break;
+
+    case 1:
+        r = q;
+        g = v;
+        b = p;
+        break;
+
+    case 2:
+        r = p;
+        g = v;
+        b = t;
+        break;
+
+    case 3:
+        r = p;
+        g = q;
+        b = v;
+        break;
+
+    case 4:
+        r = t;
+        g = p;
+        b = v;
+        break;
+    case 5:
+
+    default:
+        r = v;
+        g = p;
+        b = q;
+        break;
+    }
+
+    return (((uint32_t)(r*255) << 16) | ((uint32_t)round(g*255) << 8) | ((uint32_t)round(b*255) << 0));
 }
 
 rgb_t col_to_rgb(uint32_t col, uint32_t stren)
@@ -174,69 +263,70 @@ int32_t map_freq_to_wl(int32_t freq)
 
     if (freq <= GUITAR_FREQ_MIN)
     {
-      wl = VISIBLE_WL_MAX;
-  }
-  else if (freq >= GUITAR_FREQ_MAX)
-  {
-    wl = VISIBLE_WL_MIN;
-  }
-  else
-  {
-    wl = VISIBLE_WL_MAX - (((freq - GUITAR_FREQ_MIN) * VISIBLE_WL_RANGE)/GUITAR_FREQ_RANGE);
-  }
+        wl = VISIBLE_WL_MAX;
+    }
+    else if (freq >= GUITAR_FREQ_MAX)
+    {
+        wl = VISIBLE_WL_MIN;
+    }
+    else
+    {
+        wl = VISIBLE_WL_MAX - (((freq - GUITAR_FREQ_MIN) * VISIBLE_WL_RANGE)/GUITAR_FREQ_RANGE);
+    }
 
   return wl;
 }
 
 void add_point(int32_t loc, int32_t vel, int32_t sz, uint32_t col, uint32_t stren)
 {
-  for (int i = 0; i < MAX_POINTS; i++)
-  {
-    if (point_buf[i].loc < 0)
+    for (int i = 0; i < MAX_POINTS; i++)
     {
-      point_buf[i].loc = loc;
-      point_buf[i].vel = vel;
-      point_buf[i].rgb = col_to_rgb(col, stren);
+        if (point_buf[i].loc < 0)
+        {
+            point_buf[i].loc = loc;
+            point_buf[i].vel = vel;
+            point_buf[i].rgb = col_to_rgb(col, stren);
 
-      point_buf[i].size = sz + 1;
-      break;
+            point_buf[i].size = sz + 1;
+            break;
+        }
     }
-  }
 }
  
 
 void update_leds( TimerHandle_t xTimer )
 {
-  update_pts();
+    update_pts();
 
-  for (int i = 0; i < LEDS_COUNT; i++) {
-    rgb_t rgb = {.r = 0, .g = 0, .b = 0};
-
-    int t = 0;
-
-    for (int j = 1-LEDS_ALIAS; j < LEDS_ALIAS; j++)
+    for (int i = 0; i < LEDS_COUNT; i++)
     {
-      int k = (i * LEDS_ALIAS) + j;
-      if ((k > 0) && (led_buf[k].s > 0))
-      {
-        int s = LEDS_ALIAS - abs(j);
-        rgb.r += (s * led_buf[k].r)/led_buf[k].s;
-        rgb.g += (s * led_buf[k].g)/led_buf[k].s;
-        rgb.b += (s * led_buf[k].b)/led_buf[k].s;
-        t  += s;
-      }
-    }
-    if (t > 0)
-    {
-        led_strip_set_pixel(led_strip, i, rgb.r/t, rgb.g/t, rgb.b/t);
-    }
-    else
-    {
-        led_strip_set_pixel(led_strip, i, 0, 0, 0);
-    }
-  }
+        rgb_t rgb = {.r = 0, .g = 0, .b = 0};
 
-  led_strip_refresh(led_strip);
+        int t = 0;
+
+        for (int j = 1-LEDS_ALIAS; j < LEDS_ALIAS; j++)
+        {
+            int k = (i * LEDS_ALIAS) + j;
+            if ((k > 0) && (led_buf[k].s > 0))
+            {
+                int s = LEDS_ALIAS - abs(j);
+                rgb.r += (s * led_buf[k].r)/led_buf[k].s;
+                rgb.g += (s * led_buf[k].g)/led_buf[k].s;
+                rgb.b += (s * led_buf[k].b)/led_buf[k].s;
+                t  += s;
+            }
+        }
+        if (t > 0)
+        {
+            led_strip_set_pixel(led_strip, i, rgb.r/t, rgb.g/t, rgb.b/t);
+        }
+        else
+        {
+            led_strip_set_pixel(led_strip, i, 0, 0, 0);
+        }
+    }
+
+    led_strip_refresh(led_strip);
 }
 
 void configure_led(void)

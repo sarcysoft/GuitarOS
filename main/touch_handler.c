@@ -29,8 +29,6 @@ static lv_indev_data_t data;
 #define CONFIG_LCD_TOUCH_RST 13
 #define CONFIG_LCD_TOUCH_INT 5
 
-#define MEMS_ADDR 0x6B
-
 static void touch_callback(esp_lcd_touch_handle_t tp)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -121,7 +119,7 @@ void i2c_init(void)
     };
     i2c_param_config(0, &i2c_conf);
     i2c_driver_install(0, i2c_conf.mode, 0, 0, 0);
-    
+
 }
 
 void configure_touch(void)

@@ -7,4 +7,6 @@ idf_component_register(SRCS
 "lcd_handler.c"
 "touch_handler.c"
 "ui_handler.c"
+"mems_handler.c"
+"ss_logo_240.c"
 INCLUDE_DIRS ".")
