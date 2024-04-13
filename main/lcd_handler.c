@@ -214,7 +214,8 @@ void configure_lcd(void)
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
-
+    esp_lcd_panel_swap_xy(panel_handle, false);
+    esp_lcd_panel_mirror(panel_handle, true, false);
     uint8_t status[5];
 
     //ESP_ERROR_CHECK(esp_lcd_panel_io_rx_param(io_handle, 0x38, NULL, 0));
@@ -241,7 +242,7 @@ void configure_lcd(void)
     disp_drv.hor_res = EXAMPLE_LCD_H_RES;
     disp_drv.ver_res = EXAMPLE_LCD_V_RES;
     disp_drv.flush_cb = example_lvgl_flush_cb;
-    disp_drv.drv_update_cb = example_lvgl_port_update_callback;
+    disp_drv.drv_update_cb = NULL;//example_lvgl_port_update_callback;
     disp_drv.draw_buf = &disp_buf;
     disp_drv.user_data = panel_handle;
     lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
