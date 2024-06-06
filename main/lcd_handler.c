@@ -58,7 +58,7 @@ static esp_lcd_panel_handle_t panel_handle = NULL;
 
 static const char *TAG = "GuitarOS(LCD)";
 
-unsigned char reverse(unsigned char b) {
+static unsigned char reverse(unsigned char b) {
    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
@@ -262,12 +262,5 @@ void configure_lcd(void)
     ESP_LOGI(TAG, "Create LVGL task");
     xTaskCreate(example_lvgl_port_task, "LVGL", EXAMPLE_LVGL_TASK_STACK_SIZE, NULL, EXAMPLE_LVGL_TASK_PRIORITY, NULL);
 
-    ESP_LOGI(TAG, "Display LVGL Meter Widget");
-    // Lock the mutex due to the LVGL APIs are not thread-safe
-    if (example_lvgl_lock(-1)) {
-        configure_UI(disp);
-        // Release the mutex
-        example_lvgl_unlock();
-    }
-
+    configure_UI(disp);
 }

@@ -5,7 +5,8 @@
 #include "esp_log.h"
 
 #include "led_handler.h"
-#include "adc_handler.h"
+#include "i2s_handler.h"
+//#include "adc_handler.h"
 #include "fft_handler.h"
 #include "wifi_handler.h"
 #include "lcd_handler.h"
@@ -24,11 +25,13 @@ void app_main(void)
     
     configure_led();   
 
-    configure_mems();   
+    configure_mems();  
 
+
+    configure_fft();
+    
     //adc_init();
-
-    //configure_fft();
+    i2s_init(); 
 
     //wifi_init();
 

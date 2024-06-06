@@ -16,12 +16,6 @@
 
 static const char *TAG = "GuitarOS(LED)";
 
-typedef struct rgb_type {
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t s;
-} rgb_t;
 
 typedef struct light_point_type {
     int32_t loc;
@@ -32,6 +26,7 @@ typedef struct light_point_type {
 
 rgb_t led_buf[LEDS_MAX];
 light_point_t point_buf[MAX_POINTS];
+rgb_t glob_rgb;
 
 static led_strip_handle_t led_strip;
 
@@ -175,6 +170,47 @@ rgb_t waveLengthToRGB(double Wavelength, int8_t stren)
     return rgb;
 }
 
+uint32_t waveLengthToCol(double Wavelength, int8_t stren)
+{
+    rgb_t rgb = waveLengthToRGB(Wavelength, stren);
+    return rgb_to_col(rgb.r, rgb.g, rgb.b);
+}
+
+uint32_t rgb_to_col(double r, double g, double b)
+{
+    if (r < 0)
+    {
+        r = -r;
+    }
+
+    if (r > 1) 
+    {
+        r = 1;
+    }
+
+    if (g < 0)
+    {
+        g = -g;
+    }
+
+    if (g > 1) 
+    {
+        g = 1;
+    }
+
+    if (b < 0)
+    {
+        b = -b;
+    }
+
+    if (b > 1) 
+    {
+        b = 1;
+    }
+
+    return (((uint32_t)(r*255) << 16) | ((uint32_t)round(g*255) << 8) | ((uint32_t)round(b*255) << 0));
+}
+
 uint32_t hsv_to_col(double h, double s, double v)
 {
     double      hh, p, q, t, ff;
@@ -241,7 +277,7 @@ uint32_t hsv_to_col(double h, double s, double v)
         break;
     }
 
-    return (((uint32_t)(r*255) << 16) | ((uint32_t)round(g*255) << 8) | ((uint32_t)round(b*255) << 0));
+    return rgb_to_col(r,g,b);
 }
 
 rgb_t col_to_rgb(uint32_t col, uint32_t stren)
@@ -292,10 +328,16 @@ void add_point(int32_t loc, int32_t vel, int32_t sz, uint32_t col, uint32_t stre
         }
     }
 }
- 
+
+void set_col(uint32_t col)
+{
+    glob_rgb = col_to_rgb(col, 255);
+    //ESP_LOGI(TAG, "x : %d, y : %d, z : %d", (int)glob_rgb.r, (int)glob_rgb.g, (int)glob_rgb.b);
+}
 
 void update_leds( TimerHandle_t xTimer )
 {
+#if 1
     update_pts();
 
     for (int i = 0; i < LEDS_COUNT; i++)
@@ -325,7 +367,12 @@ void update_leds( TimerHandle_t xTimer )
             led_strip_set_pixel(led_strip, i, 0, 0, 0);
         }
     }
-
+#else
+    for (int i = 0; i < LEDS_COUNT; i++)
+    {
+        led_strip_set_pixel(led_strip, i, glob_rgb.r, glob_rgb.g, glob_rgb.b);
+    }
+#endif
     led_strip_refresh(led_strip);
 }
 
@@ -338,7 +385,7 @@ void configure_led(void)
         .max_leds = LEDS_COUNT, // at least one LED on board
     };
     led_strip_rmt_config_t rmt_config = {
-        .resolution_hz = 12 * 1000 * 1000, // 10MHz
+        .resolution_hz = 13333333//12 * 1000 * 1000, // 10MHz
     };
     ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip));
     /* Set all LED off to clear all pixels */
@@ -356,5 +403,5 @@ void configure_led(void)
     ESP_LOGI(TAG, "Starting LED update timer");
     xTimerStart(hUpdate, 0);
     
-    add_point(0,1,5,0x00ffffff,255);
+    //add_point(0,1,5,0x00ffffff,255);
 }

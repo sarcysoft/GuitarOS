@@ -145,9 +145,9 @@ void adc_task( void * pvParameters )
                             //ESP_LOGI(TAG, "%d - %d", i, (int)(p->type2.data));
                             
                             int32_t iVal = (p->type2.data) - baseValue;
-                            rawBuf[i*2] = (iVal >> 0) & 0xFF;
-                            rawBuf[i*2+1] = (iVal >> 8) & 0xFF;
-                            /*
+                            //rawBuf[i*2] = (iVal >> 0) & 0xFF;
+                            //rawBuf[i*2+1] = (iVal >> 8) & 0xFF;
+                            
                             if (iVal > maxVal)
                             {
                                 iVal = maxVal;
@@ -161,7 +161,7 @@ void adc_task( void * pvParameters )
                             float val = (float)iVal / (float)maxVal;
                             sampleBuf[i] = val;
                             //ESP_LOGW(TAG, "%d - %f", i, sampleBuf[i]);
-                            */
+                            
                         } 
                         else
                         {
@@ -169,8 +169,8 @@ void adc_task( void * pvParameters )
                         }
                     }
     
-                    wifi_send_data((uint8_t*)rawBuf, sizeof(rawBuf));
-                    //run_fft(sampleBuf);
+                    //wifi_send_data((uint8_t*)rawBuf, sizeof(rawBuf));
+                    run_fft(sampleBuf);
                 }                
             }
             else if (ret == ESP_ERR_TIMEOUT)

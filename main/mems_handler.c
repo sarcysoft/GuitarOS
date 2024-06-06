@@ -8,6 +8,8 @@
 #include "driver/i2c.h"
 
 #include "mems_handler.h"
+#include "ui_handler.h"
+#include "led_handler.h"
 
 static const char *TAG = "GuitarOS(MEMS)";
 
@@ -65,6 +67,8 @@ static esp_err_t i2c_master_write_slave_reg(i2c_port_t i2c_num, uint8_t i2c_addr
 
 static void mems_task(void *arg)
 {
+    static int16_t xx = 100, yy = 800;
+
     ESP_LOGI(TAG, "Starting MEMS task");
     while (1) {
         uint8_t axl,axh,ayl,ayh,azl,azh;
@@ -77,9 +81,36 @@ static void mems_task(void *arg)
         int16_t ax = ((int16_t)axh << 8) | axl;
         int16_t ay = ((int16_t)ayh << 8) | ayl;
         int16_t az = ((int16_t)azh << 8) | azl;
-        ESP_LOGI(TAG, "ax : %d, ay : %d, az : %d", ax,ay,az);
+        //ESP_LOGI(TAG, "ax : %d, ay : %d, az : %d", ax,ay,az);
+#if 0
+        ax -= xx;
+        ay -= yy;
         
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        uint8_t s = 2;
+        while ((abs(ax >> s) >= 120) || (abs(ay >> s) >= 120))
+        {
+            s += 3;
+        }
+
+        show_xy(-(ay >> s), (ax >> s), 5 + (s * 5));
+#else
+        static double last_x = 0;
+        static double last_y = 0;
+        static double last_z = 0;
+        
+        double x = (double)((int32_t)ax + 0x4000) / (double)0x8000;
+        double y = (double)((int32_t)ay + 0x4000) / (double)0x8000;
+        double z = (double)((int32_t)az + 0x4000) / (double)0x8000;
+        //ESP_LOGI(TAG, "x : %f, y : %f, z : %f", x,y,z);
+        //add_point(0, 1, 3, rgb_to_col(x,y,z), 255);
+
+        set_col(rgb_to_col(last_x-x, last_y-y, last_z-z));
+
+        last_x = x;
+        last_y = y;
+        last_z = z;
+#endif        
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -100,11 +131,6 @@ void configure_mems(void)
     i2c_master_read_slave_reg((i2c_port_t)0, MEMS_ADDR, 0x03, &ctrl2, 1);
     ctrl2 = (ctrl2 & 0xf0) | 0x08;
     i2c_master_write_slave_reg((i2c_port_t)0, MEMS_ADDR, 0x03, &ctrl2, 1);
-
-    uint8_t status0, status1;
-    i2c_master_read_slave_reg((i2c_port_t)0, MEMS_ADDR, 0x2e, &status0, 1);
-    i2c_master_read_slave_reg((i2c_port_t)0, MEMS_ADDR, 0x2f, &status1, 1);
-    ESP_LOGI(TAG, "Status0 : %02x, Status1 : %02x", status0,status1);
 
     xTaskCreate(mems_task, "MEMS", (4 * 1024), NULL, 2, NULL);
 }
