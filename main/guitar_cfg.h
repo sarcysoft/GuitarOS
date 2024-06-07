@@ -8,7 +8,7 @@
 
 #define LEDS_PIN     33
 #define LEDS_COUNT   50
-#define LEDS_ALIAS   10
+#define LEDS_ALIAS   15
 #define LEDS_MAX     (LEDS_COUNT * LEDS_ALIAS)
 
 #define I2S_MCLK_PIN 18

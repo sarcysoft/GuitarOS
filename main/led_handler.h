@@ -10,6 +10,7 @@ typedef struct rgb_type {
 } rgb_t;
 
 void configure_led(void);
+void add_to_led(int32_t i, uint32_t col, uint32_t s);
 void add_point(int32_t loc, int32_t vel, int32_t sz, uint32_t col, uint32_t stren);
 void set_col(uint32_t col);
 rgb_t waveLengthToRGB(double Wavelength, int8_t stren);

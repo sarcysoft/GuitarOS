@@ -286,8 +286,8 @@ rgb_t col_to_rgb(uint32_t col, uint32_t stren)
     
     stren = stren < 256 ? stren : 256;
 
-    rgb.r = ((stren  * ((col >> 16) & 0xff)) / 256);
-    rgb.g = ((stren  * ((col >> 8) & 0xff)) / 256);
+    rgb.g = ((stren  * ((col >> 16) & 0xff)) / 256);
+    rgb.r = ((stren  * ((col >> 8) & 0xff)) / 256);
     rgb.b = ((stren  * ((col >> 0) & 0xff)) / 256);
 
     return rgb;
@@ -337,7 +337,7 @@ void set_col(uint32_t col)
 
 void update_leds( TimerHandle_t xTimer )
 {
-#if 1
+#if 0
     update_pts();
 
     for (int i = 0; i < LEDS_COUNT; i++)
@@ -368,12 +368,25 @@ void update_leds( TimerHandle_t xTimer )
         }
     }
 #else
+    int fade = 110;
     for (int i = 0; i < LEDS_COUNT; i++)
     {
-        led_strip_set_pixel(led_strip, i, glob_rgb.r, glob_rgb.g, glob_rgb.b);
+        led_strip_set_pixel(led_strip, i, led_buf[i].r, led_buf[i].g, led_buf[i].b);
+
+        led_buf[i].r = (led_buf[i].r > 1) ? ((fade * led_buf[i].r) / 128) : 0;
+        led_buf[i].g = (led_buf[i].g > 1) ? ((fade * led_buf[i].g) / 128) : 0;
+        led_buf[i].b = (led_buf[i].b > 1) ? ((fade * led_buf[i].b) / 128) : 0;
     }
 #endif
     led_strip_refresh(led_strip);
+}
+
+void add_to_led(int32_t i, uint32_t col, uint32_t s)
+{
+    rgb_t rgb = col_to_rgb(col, s);
+    led_buf[i].r = (led_buf[i].r + rgb.r) < 255 ? (led_buf[i].r + rgb.r) : 255;
+    led_buf[i].g = (led_buf[i].g + rgb.g) < 255 ? (led_buf[i].g + rgb.g) : 255;
+    led_buf[i].b = (led_buf[i].b + rgb.b) < 255 ? (led_buf[i].b + rgb.b) : 255;
 }
 
 void configure_led(void)

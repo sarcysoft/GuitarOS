@@ -39,6 +39,7 @@ const uint32_t color_map[] = {
 void update_spectrum(void)
 {
     //ESP_LOGI(TAG, "update_spectrum()");
+#if 0
     uint32_t max_i = 0;
 
     for (uint32_t i = (GUITAR_FREQ_MIN / BIN_FREQ); i < (GUITAR_FREQ_MAX / BIN_FREQ); i++)
@@ -74,28 +75,85 @@ void update_spectrum(void)
             int s = smoothed[max_i];
             int octave = OCTAVE_FROM_NOTE(NOTE_FROM_FREQ(note_freq));
             int note = NOTE_FROM_OCTAVE(NOTE_FROM_FREQ(note_freq));
-#if 1
-            //printf("%fHz (%s%d) - %d (%dHz - %dHz)\n", note_freq, note_names[note], octave, s, (int)round(freq), (int)round(freq + BIN_FREQ ));
-            static int last_v = 0;
-            static int last_note = 0;
-            int v = 1 + (10 * s)/100;
 
-            if ( (abs(note - last_note) > 1) || ( v > last_v))
+            //printf("%fHz (%s%d) - %d (%dHz - %dHz)\n", note_freq, note_names[note], octave, s, (int)round(freq), (int)round(freq + BIN_FREQ ));
+            static int last_s = 0;
+            static int last_note = 0;
+            int t1 = 3;
+            int t2 = 5;
+            int v = 1 + (s*s*s)/500;
+
+            if ( ((note != last_note) && ( s > last_s + t1)) || ((note == last_note) && ( s > last_s + t2)))
             {
-                add_point(0, v, v, color_map[note], (s*5));
+                add_point(0, v, 1, color_map[note], s*2);
             }
             
-            last_v = v;
+            last_s = s;
             last_note = note;
-#else
-            int v = 1 + (32 * s)/100;
-            double wl = VISIBLE_WL_MIN + VISIBLE_WL_RANGE * ((note_freq - GUITAR_FREQ_MIN) / GUITAR_FREQ_RANGE);
-            add_point(0, v, v, waveLengthToCol(wl, 128), (s*8));
-#endif
+
         }
     }
 
     //ESP_LOGI(TAG, "%s",text);
+#else
+    static uint32_t avg_peak = 100;
+    uint32_t bands = 12;
+    uint32_t start = (80 / BIN_FREQ);
+    uint32_t end = (10000 / BIN_FREQ);
+    uint32_t range = (end - start);
+    //uint32_t led = 0;
+    uint32_t max_peak = 0;
+
+    for (uint32_t b = 0; b < bands; b++)
+    {
+        uint32_t peak = 0;
+        for (uint32_t i = (b * range)/(bands + range); i < ((b+1) * range)/(bands + range); i++)
+        {
+            if (smoothed[start+i] > 0)
+            {
+                peak += smoothed[start+i];
+            }
+        }
+
+        peak = (peak * peak) / 32;
+
+        if (peak > max_peak)
+        {
+            max_peak = peak;
+        }
+
+        //printf("Band %d - Peak = %d\n", (int)b, (int)peak);
+
+        //printf("Band %d = %d -  %d\n", (int)b, (int)((b * LEDS_COUNT)/(bands)), (int)(((b+1) * LEDS_COUNT)/(bands)));
+#if 1
+        for (uint32_t i = 0; i < (peak *LEDS_COUNT)/(((1+peak) * 256) / avg_peak); i++)
+        {
+            add_to_led((b * LEDS_COUNT)/(bands) + i, color_map[b%12], (peak * 64) / avg_peak);
+            //led++;
+        }
+#else
+        for (uint32_t i = 0; i < LEDS_COUNT; i++)
+        {
+            add_to_led(i, color_map[i%12], 128);
+            //led++;
+        }
+#endif
+    }
+
+    //if (max_peak > avg_peak)
+    {
+        //avg_peak = max_peak;
+    }
+    //else
+    {
+        avg_peak = (avg_peak + max_peak) / 2;
+        if (avg_peak < 10)
+        {
+            avg_peak = 10;
+        } 
+    }
+
+#endif
 }
 
 void process_and_show(float* data, int length)
