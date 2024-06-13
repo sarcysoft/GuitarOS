@@ -109,13 +109,13 @@ void update_spectrum(void)
         uint32_t peak = 0;
         for (uint32_t i = (b * range)/(bands + range); i < ((b+1) * range)/(bands + range); i++)
         {
-            if (smoothed[start+i] > 0)
+            if (smoothed[start+i] > 20)
             {
                 peak += smoothed[start+i];
             }
         }
 
-        peak = (peak * peak) / 32;
+        peak = (peak * peak) / 64;
 
         if (peak > max_peak)
         {
