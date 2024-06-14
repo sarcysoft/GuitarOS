@@ -109,13 +109,13 @@ void update_spectrum(void)
         uint32_t peak = 0;
         for (uint32_t i = (b * range)/(bands + range); i < ((b+1) * range)/(bands + range); i++)
         {
-            if (smoothed[start+i] > 20)
+            if (smoothed[start+i] > 1)
             {
                 peak += smoothed[start+i];
             }
         }
 
-        peak = (peak * peak) / 64;
+        peak = (peak * peak);// / 32;
 
         if (peak > max_peak)
         {
@@ -126,7 +126,9 @@ void update_spectrum(void)
 
         //printf("Band %d = %d -  %d\n", (int)b, (int)((b * LEDS_COUNT)/(bands)), (int)(((b+1) * LEDS_COUNT)/(bands)));
 #if 1
-        for (uint32_t i = 0; i < (peak *LEDS_COUNT)/(((1+peak) * 256) / avg_peak); i++)
+        uint32_t scale = (((1+peak) * 256) / avg_peak);
+        scale = (scale < 1) ? 1 : scale;
+        for (uint32_t i = 0; i < (peak *LEDS_COUNT)/scale; i++)
         {
             add_to_led((b * LEDS_COUNT)/(bands) + i, color_map[b%12], (peak * 64) / avg_peak);
             //led++;

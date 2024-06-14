@@ -1,5 +1,6 @@
 idf_component_register(SRCS
 "main.c"
+"fs_handler.c"
 "led_handler.c"
 "i2s_handler.c"
 "fft_handler.c"

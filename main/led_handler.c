@@ -62,7 +62,9 @@ void update_pts()
 
             if ((loc >= 0) && (loc < LEDS_MAX))
             {
-                int32_t s = point_buf[i].size;
+                int32_t s = point_buf[i].size;     
+                int32_t ss = (s < 1) ? 1 : s;     
+                     
                 for (int l = loc - s; l <= loc + s; l++)
                 {
                     if ((l >= 0) && (l < LEDS_MAX))
@@ -70,9 +72,9 @@ void update_pts()
                         rgb_t rgb = point_buf[i].rgb;
                         int32_t x = s - abs(l - loc);
 
-                        led_buf[l].r = (x * rgb.r) / s;
-                        led_buf[l].g = (x * rgb.g) / s;
-                        led_buf[l].b = (x * rgb.b) / s;
+                        led_buf[l].r = (x * rgb.r) / ss;
+                        led_buf[l].g = (x * rgb.g) / ss;
+                        led_buf[l].b = (x * rgb.b) / ss;
 
                         led_buf[l].s++;
                     }
