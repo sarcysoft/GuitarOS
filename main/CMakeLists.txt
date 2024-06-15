@@ -9,4 +9,5 @@ idf_component_register(SRCS
 "ui_handler.c"
 "mems_handler.c"
 "ss_logo_240.c"
+"ss_logo_240_bg.c"
 INCLUDE_DIRS ".")

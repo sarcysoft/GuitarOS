@@ -33,7 +33,6 @@ float sample[SAMPLE_SIZE];
 
 static void i2s_rxtx_task(void *args)
 {
-    ESP_LOGI(TAG, "i2s_rxtx_task()!");
     size_t r_bytes = 0;
     //size_t t_bytes = 0;
 
@@ -59,7 +58,6 @@ static void i2s_rxtx_task(void *args)
 
 static void i2s_fft_task(void *args)
 {
-    ESP_LOGI(TAG, "i2s_fft_task()!");
     while (1) {
         if( ulTaskNotifyTake( pdTRUE, portMAX_DELAY ) == pdTRUE )
         {
@@ -134,7 +132,6 @@ void i2s_init(void)
 
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(rx_chan, &rx_std_cfg));
     //ESP_ERROR_CHECK(i2s_channel_init_std_mode(tx_chan, &tx_std_cfg));
-    
 
     xTaskCreate(i2s_rxtx_task, "i2s_rxtx_task", 2048, NULL, configMAX_PRIORITIES-1, NULL);
     xTaskCreate(i2s_fft_task, "i2s_fft_task", 10240, NULL, 5, &xFftTask);

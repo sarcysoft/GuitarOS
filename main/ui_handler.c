@@ -13,39 +13,163 @@
 #include "ui_handler.h"
 #include "lcd_handler.h"
 #include "math.h"
-#include "led_handler.h"
 
 //#define SHOW_TOUCH_ZONE
 
 extern const lv_img_dsc_t ss_logo_240;
+extern const lv_img_dsc_t ss_logo_240_bg;
 
 static const char *TAG = "GuitarOS(UI)";
 
 static TickType_t last_input;
 static TickType_t last_press;
+static TickType_t last_hold;
+static int16_t hold_time = 500;
 static int16_t last_zone_pressed = -1;
 static int16_t last_zone_released = -1;
 static int16_t last_zone = -1;
 static bool zone_state = false;
 
+lv_obj_t * lblTitle;
+lv_obj_t * lblDetails;
+
 static lv_disp_t *pDisp = NULL;
 
 static bool active = true;
+static int32_t value = 0;
+
+typedef enum
+{
+    eTouch,
+    eEnter,
+    eHold,
+    ePress,
+    eLongPress,
+    eExtraLongPress
+} event_t;
 
 
 extern bool example_lvgl_lock(int timeout_ms);
 extern void example_lvgl_unlock(void);
 
+void handle_event(event_t event, uint8_t zone)
+{
+    if (!active)
+    {
+        if ((event == eExtraLongPress) && (zone == 0))
+        {
+            if (example_lvgl_lock(-1))
+            {
+                active = true;
+                lcd_state(true);               
+                example_lvgl_unlock();
+            }
+        }
+    }
+    else
+    {
+        switch (event)
+        {
+            case eTouch:
+                ESP_LOGI(TAG, "Zone %d touched", zone);
+            break;
+
+            case eEnter:
+                ESP_LOGI(TAG, "Zone %d entered", zone);
+            break;
+            
+            case ePress:
+                ESP_LOGI(TAG, "Press event");
+                if (zone == 4)
+                {
+                    value++;
+                    char text[16];
+                    sprintf(text, "%d", (int)value);
+                    lv_label_set_text(lblDetails, text);
+
+                }
+                else if (zone == 2)
+                {
+                    value--;
+                    char text[16];
+                    sprintf(text, "%d", (int)value);
+                    lv_label_set_text(lblDetails, text);
+                }
+            break;
+
+            case eHold:
+                //ESP_LOGI(TAG, "Hold event");
+                if (zone == 4)
+                {
+                    value++;
+                    char text[16];
+                    sprintf(text, "%d", (int)value);
+                    lv_label_set_text(lblDetails, text);
+
+                }
+                else if (zone == 2)
+                {
+                    value--;
+                    char text[16];
+                    sprintf(text, "%d", (int)value);
+                    lv_label_set_text(lblDetails, text);
+                }
+            break;
+
+            case eLongPress:
+                ESP_LOGI(TAG, "Long press event");
+            break;
+
+            case eExtraLongPress:
+                ESP_LOGI(TAG, "Extra long press event");
+                if (zone == 0)
+                {
+                    if (example_lvgl_lock(-1))
+                    {
+                        active = false;
+                        lcd_state(false);               
+                        example_lvgl_unlock();
+                    }
+                }
+            break;
+
+            default:
+                ESP_LOGI(TAG, "Invalid event");
+            break;
+        }
+    }
+}
+
 void disp_task( void * pvParameters )
 {
     TickType_t xLastWakeTime;
-    const TickType_t xFrequency = 25;
+    const TickType_t xFrequency = 10;
 
     if (example_lvgl_lock(-1))
     {
         lv_obj_t *scr = lv_disp_get_scr_act(pDisp);
         lv_obj_set_style_bg_color(scr, lv_color_hex(0x000000), LV_PART_MAIN);
 
+        lv_obj_t * bg = lv_img_create(scr);
+        lv_img_set_src(bg, &ss_logo_240_bg);
+        lv_obj_align(bg, LV_ALIGN_CENTER, 0, 0);
+
+        lblTitle = lv_label_create(scr);
+        lv_obj_set_style_text_font(lblTitle, &lv_font_montserrat_18, 0);
+        lv_obj_set_style_text_color(lblTitle, lv_color_hex(0xff0000), 0);
+        lv_label_set_text(lblTitle, "Threshold");
+        lv_obj_set_width(lblTitle, 150);  
+        lv_obj_set_style_text_align(lblTitle, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(lblTitle, LV_ALIGN_CENTER, 0, -40);
+
+        lblDetails = lv_label_create(scr);
+        lv_obj_set_style_text_font(lblDetails, &lv_font_montserrat_38, 0);
+        lv_obj_set_style_text_color(lblDetails, lv_color_hex(0x00ff00), 0);
+        lv_label_set_text(lblDetails, "0");
+        lv_obj_set_width(lblDetails, 150); 
+        lv_obj_set_style_text_align(lblDetails, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(lblDetails, LV_ALIGN_CENTER, 0, 0);
+        
         lv_obj_t * logo = lv_img_create(scr);
         lv_img_set_src(logo, &ss_logo_240);
         lv_obj_align(logo, LV_ALIGN_CENTER, 0, 0);
@@ -65,32 +189,18 @@ void disp_task( void * pvParameters )
         // Wait for the next cycle.
         vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
-        if (pdTICKS_TO_MS(xLastWakeTime - last_input) > 60000)
+        if (zone_state)
         {
-            if (active) 
+            if (pdTICKS_TO_MS(xTaskGetTickCount() - last_hold) > hold_time)
             {
-                if (example_lvgl_lock(-1))
+                handle_event(eHold, last_zone);
+                last_hold = xTaskGetTickCount();
+                if (hold_time > 10)
                 {
-                    lcd_state(false);               
-                    example_lvgl_unlock();
+                    hold_time = hold_time / 2;
                 }
-                active = false;
             }
         }
-        else
-        {
-            if (!active)
-            {
-                if (example_lvgl_lock(-1))
-                {
-                    lcd_state(true);
-                    example_lvgl_unlock();
-                }
-                active = true;
-            }
-        }
-
-        // Perform action here.
     }
 }
 
@@ -118,36 +228,9 @@ void configure_UI(lv_disp_t *disp)
     }
 }
 
-void show_xy(int16_t x, int16_t y, uint8_t s)
-{
-    static lv_obj_t * xy_obj = NULL;
-
-    if (example_lvgl_lock(10))
-    {
-        if (xy_obj == NULL)
-        {
-            lv_obj_t *scr = lv_disp_get_scr_act(pDisp);
-
-            xy_obj = lv_arc_create(scr);
-            lv_arc_set_rotation(xy_obj, 0);
-            lv_obj_set_style_arc_color(xy_obj, lv_palette_main(LV_PALETTE_PURPLE), LV_PART_MAIN);
-            lv_obj_set_style_arc_rounded(xy_obj, false, LV_PART_MAIN);
-            lv_obj_remove_style(xy_obj, NULL, LV_PART_KNOB);
-            lv_arc_set_bg_angles(xy_obj, 0, 360);
-            lv_arc_set_value(xy_obj, 0);
-            lv_obj_set_style_arc_width(xy_obj, 2, LV_PART_MAIN);
-        }
-
-        //ESP_LOGI(TAG, "x : %d, y : %d, s : %d", x,y,s);
-        lv_obj_set_size(xy_obj, s, s);
-        lv_obj_align(xy_obj, LV_ALIGN_CENTER, x, y);
-
-        example_lvgl_unlock();
-    }
-}
 
 uint16_t rad = 50;
-uint16_t segs = 8;
+uint16_t segs = 4;
 
 void show_touch_zone(int8_t zone)
 {
@@ -229,21 +312,27 @@ void send_input(uint16_t x, uint16_t y, bool state)
     {    
         if (state)
         {
-            ESP_LOGI(TAG, "Zone %d pressed", zone);
             last_zone_pressed = zone;
-            last_press = xTaskGetTickCount();
+            last_hold = last_press = xTaskGetTickCount();
+            hold_time = 500;
             show_touch_zone(zone);
-
-            add_point(0, 1+r/15, 5, hsv_to_col((double)a, 1, 1), 255);
+            handle_event(eTouch, zone);
         }
         else
         {
-            ESP_LOGI(TAG, "Zone %d released", zone);
             show_touch_zone(-1);
             last_zone_released = zone;
-            if (pdTICKS_TO_MS(xTaskGetTickCount() - last_press) > 1000)
+            if (pdTICKS_TO_MS(xTaskGetTickCount() - last_press) > 2000)
             {
-                ESP_LOGI(TAG, "Long Press");
+                handle_event(eExtraLongPress, zone);
+            }
+            else if (pdTICKS_TO_MS(xTaskGetTickCount() - last_press) > 500)
+            {
+                handle_event(eLongPress, zone);
+            }
+            else
+            {
+                handle_event(ePress, zone);
             }
         }
 
@@ -254,15 +343,13 @@ void send_input(uint16_t x, uint16_t y, bool state)
     {
         if (last_zone != -1)
         {
-            ESP_LOGI(TAG, "Zone %d entered", zone);
             show_touch_zone(zone);
-            add_point(0, 1+r/15, 5, hsv_to_col((double)a, 1, 1), 255);
+            handle_event(eEnter, zone);
+            last_hold = xTaskGetTickCount();
         }
 
         last_zone = zone;
     }
 
-
     //ESP_LOGI(TAG, "touch pressed = %d , x = %u , y=%u : vec = %u @ %d°", state, x, y, r, a);
-    
 }
