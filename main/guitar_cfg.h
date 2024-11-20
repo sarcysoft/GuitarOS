@@ -1,21 +1,35 @@
 #ifndef GUITAR_CFG_H
 #define GUITAR_CFG_H
 
+#define DATA_YELLOW 0
+
+#define DATA_BROWN  15
+#define DATA_ORANGE 16
+#define DATA_GREEN  17
+#define DATA_BLUE   18
+#define DATA_PURPLE 21
+#define DATA_GREY   33
+
+
 // Visible: 380nm - 780nm
 #define VISIBLE_WL_MIN     380
 #define VISIBLE_WL_MAX     780
 #define VISIBLE_WL_RANGE   (VISIBLE_WL_MAX - VISIBLE_WL_MIN)
 
-#define LEDS_PIN     33
+#define LEDS_PIN     DATA_GREY
 #define LEDS_COUNT   50
 #define LEDS_ALIAS   15
 #define LEDS_MAX     (LEDS_COUNT * LEDS_ALIAS)
 
-#define I2S_MCLK_PIN 18
-#define I2S_BCLK_PIN 15
-#define I2S_DOUT_PIN 21
-#define I2S_DIN_PIN  16
-#define I2S_WS_PIN   17
+#define I2S_MCLK_PIN I2S_GPIO_UNUSED
+#define I2S_BCLK_PIN DATA_BROWN
+#define I2S_DIN_PIN  DATA_ORANGE
+#define I2S_DOUT_PIN I2S_GPIO_UNUSED
+#define I2S_WS_PIN   DATA_GREEN
+
+#define ENC_PIN_D0  DATA_BLUE
+#define ENC_PIN_D1  DATA_PURPLE
+#define ENC_PIN_SW  DATA_YELLOW
 
 #define MAX_POINTS 50
 
