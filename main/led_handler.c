@@ -291,6 +291,7 @@ rgb_t col_to_rgb(uint32_t col, uint32_t stren)
     rgb.g = ((stren  * ((col >> 16) & 0xff)) / 256);
     rgb.r = ((stren  * ((col >> 8) & 0xff)) / 256);
     rgb.b = ((stren  * ((col >> 0) & 0xff)) / 256);
+    rgb.s = 0;
 
     return rgb;
 }
