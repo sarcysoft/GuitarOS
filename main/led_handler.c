@@ -168,6 +168,7 @@ rgb_t waveLengthToRGB(double Wavelength, int8_t stren)
     rgb.r = Red == 0.0 ? 0 : (int)round(stren * pow(Red * factor, Gamma));
     rgb.g = Green == 0.0 ? 0 : (int)round(stren * pow(Green * factor, Gamma));
     rgb.b = Blue == 0.0 ? 0 : (int)round(stren * pow(Blue * factor, Gamma));
+    rgb.s = 0;
 
     return rgb;
 }
